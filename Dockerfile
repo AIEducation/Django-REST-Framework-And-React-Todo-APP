@@ -18,15 +18,14 @@ RUN sudo apt -y install python3-pip && \
 RUN sudo apt install -y wget
 RUN curl -fsSL https://deb.nodesource.com/setup_16.x | sudo -E bash -
 RUN sudo apt-get install -y nodejs
-COPY git clone https://github.com/AIEducation/Django-REST-Framework-And-React-Todo-APP.git /home/coder/project/
-RUN sudo chown -R $coder:$coder /home/coder/project
-RUN sudo npm i --prefix /home/coder/project/frontend
-RUN sudo nohup python3 /home/coder/project/backend/manage.py runserver 0.0.0.0:8000 &
-RUN sudo nohup npm run start --prefix /home/coder/project/frontend &
+RUN git clone https://github.com/AIEducation/Django-REST-Framework-And-React-Todo-APP.git /home/coder/todo/ && sudo cp -r /home/coder/todo/project/* /home/coder/ && sudo rm -rf /home/coder/todo/
+RUN sudo chown -R $coder:$coder /home/coder/
+RUN sudo npm i --prefix /home/coder/frontend
+# RUN sudo nohup python3 /home/coder/project/backend/manage.py runserver 0.0.0.0:8000 &
+# RUN sudo nohup npm run start --prefix /home/coder/project/frontend &
 RUN sudo apt install -y nginx
-COPY project/nginx.conf /etc/nginx/conf.d/nginx.conf
-RUN sudo service nginx start
+RUN sudo cp /home/coder/nginx.conf /etc/nginx/conf.d/nginx.conf && sudo rm /home/coder/nginx.conf && sudo rm -rf /home/coder/project
 
 EXPOSE 9000 8000
 
-ENTRYPOINT ["dumb-init", "fixuid", "-q", "/usr/bin/code-server", "--bind-addr", "0.0.0.0:9000", "."]
+ENTRYPOINT ["/bin/sh", "-c" , "sudo service nginx restart && dumb-init fixuid -q /usr/bin/code-server --bind-addr 0.0.0.0:9000 ."]
